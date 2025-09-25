@@ -1,0 +1,40 @@
+"""
+Banco de dados para o projeto
+"""
+import sqlite3
+import uuid
+
+con = sqlite3.connect("clinica.db") #conectando o banco de dados 
+cur = con.cursor()
+
+#Criar a tabela de medicos
+cur.execute("""CREATE TABLE IF NOT EXISTS medicos(
+     id INTEGER PRIMARY KEY AUTOINCREMENT,   
+     nome TEXT NOT NULL,
+     especialidade TEXT NOT NULL,
+     crm TEXT NOT NULL UNIQUE
+)
+""")
+
+#gerando crm automatico
+def gerar_crm():
+    return str(uuid.uuid4())[:6]
+
+def inserir_medico(nome, especialidade):
+    crm = gerar_crm
+    cur.execute("INSERT INTO medicos(nome, especialidade, crm) VALUES (?, ?, ?)",
+                (nome, especialidade, crm))
+    
+    print("Linhas afetadas:", cur.rowcount)  # <<< DEBUG
+    con.commit()
+    print(f"Medico {nome} cadastrado com CRM {crm}")
+
+    #teste
+    inserir_medico("Gislane Sena", "Biologia Molecular")
+    inserir_medico("Bruna Gai", "Biomédica")
+
+    cur.execute("SELECT * FROM medicos")
+dados = cur.fetchall()
+print(dados)
+
+con.close()
